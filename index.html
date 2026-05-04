@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computing Quiz – Bisease Senior High School</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   THEME VARIABLES
+═══════════════════════════════════════════ */
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --border: #1e2d45;
+  --accent: #00d4ff;
+  --accent2: #7c3aed;
+  --accent3: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --text: #e2e8f0;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  --correct: #10b981;
+  --wrong: #ef4444;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 0 60px rgba(0,212,255,0.08);
+}
+
+[data-theme="light"] {
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --surface2: #f8fafc;
+  --border: #d1dae7;
+  --accent: #0099cc;
+  --accent2: #6d28d9;
+  --accent3: #059669;
+  --warn: #d97706;
+  --danger: #dc2626;
+  --text: #0f172a;
+  --text-muted: #94a3b8;
+  --text-dim: #475569;
+  --correct: #059669;
+  --wrong: #dc2626;
+  --shadow: 0 0 40px rgba(0,153,204,0.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s, color 0.3s;
+}
+
+[data-theme="dark"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0,212,255,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.screen { display: none; min-height: 100vh; position: relative; z-index: 1; flex: 1; }
+.screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#screen-register { padding: 2rem 1rem; }
+
+/* ═══════════════════════════════════════════
+   THEME TOGGLE
+═══════════════════════════════════════════ */
+.theme-toggle {
+  position: fixed;
+  top: 1rem; right: 1rem;
+  z-index: 500;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 0.4rem 0.8rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-family: 'Sora', sans-serif;
+  transition: all 0.2s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle .toggle-icon { font-size: 1rem; transition: transform 0.3s; }
+
+/* ═══════════════════════════════════════════
+   REGISTRATION CARD
+═══════════════════════════════════════════ */
+.reg-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.brand { text-align: center; margin-bottom: 2rem; }
+.brand-icon {
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 1rem;
+  box-shadow: 0 0 30px rgba(0,212,255,0.3);
+}
+.brand h1 { font-size: 1.1rem; font-weight: 700; }
+.brand h2 { font-size: 1rem; font-weight: 600; margin-top: 0.5rem; color: var(--accent); }
+.brand p { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem; }
+
+.form-group { margin-bottom: 1.2rem; }
+.form-group label { display: block; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 0.5rem; }
+.form-group input, .form-group select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+}
+.form-group select option { background: var(--surface); color: var(--text); }
+
+.rules-box {
+  background: rgba(0,212,255,0.05);
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin: 1.2rem 0;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.rules-box strong { color: var(--accent); display: block; margin-bottom: 0.4rem; }
+.rules-box li { margin-left: 1rem; margin-bottom: 0.25rem; }
+
+.one-attempt-badge {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.8rem;
+  color: var(--warn);
+  margin-bottom: 1rem;
+}
+
+.checkbox-row { display: flex; gap: 0.6rem; align-items: flex-start; margin: 1rem 0; }
+.checkbox-row input[type=checkbox] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; }
+.checkbox-row label { font-size: 0.83rem; color: var(--text-dim); cursor: pointer; }
+
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), #0099cc);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.9rem;
+  color: #000;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0,212,255,0.35); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════════
+   ALREADY ATTEMPTED
+═══════════════════════════════════════════ */
+.attempted-card {
+  background: var(--surface);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  width: 100%; max-width: 440px;
+  text-align: center;
+  animation: slideUp 0.5s ease;
+}
+.attempted-card .icon { font-size: 3rem; margin-bottom: 1rem; }
+.attempted-card h2 { font-size: 1.2rem; color: var(--danger); margin-bottom: 0.5rem; }
+.attempted-card p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.6; }
+.prev-score-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; margin: 1.2rem 0; }
+.prev-score-box .big { font-size: 2rem; font-weight: 700; color: var(--accent); }
+
+/* ═══════════════════════════════════════════
+   CAMERA SCREEN
+═══════════════════════════════════════════ */
+#screen-camera { padding: 2rem 1rem; }
+.camera-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%; max-width: 520px;
+  text-align: center;
+  animation: slideUp 0.5s ease;
+}
+.camera-card h2 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.camera-card p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
+
+#video-preview {
+  width: 100%; max-width: 380px; aspect-ratio: 4/3;
+  object-fit: cover; border-radius: var(--radius);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 30px rgba(0,212,255,0.2);
+  background: #000;
+  transform: scaleX(-1);
+}
+
+.camera-status { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 1rem 0; font-size: 0.85rem; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); animation: pulse 1.5s infinite; }
+.status-dot.active { background: var(--correct); }
+.status-dot.error { background: var(--danger); animation: none; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ═══════════════════════════════════════════
+   AUTO-SAVE INDICATOR
+═══════════════════════════════════════════ */
+.autosave-indicator {
+  position: fixed;
+  bottom: 1rem; left: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  z-index: 300;
+  display: flex; align-items: center; gap: 0.4rem;
+  transition: all 0.3s;
+  opacity: 0.7;
+}
+.autosave-indicator.saving { color: var(--warn); border-color: rgba(245,158,11,0.3); opacity: 1; }
+.autosave-indicator.saved { color: var(--correct); border-color: rgba(16,185,129,0.3); opacity: 1; }
+.autosave-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* ═══════════════════════════════════════════
+   QUIZ LAYOUT
+═══════════════════════════════════════════ */
+#screen-quiz { align-items: stretch; justify-content: flex-start; padding: 0; }
+.quiz-layout { display: flex; flex-direction: column; width: 100%; min-height: 100vh; }
+
+.quiz-topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,14,26,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+}
+[data-theme="light"] .quiz-topbar { background: rgba(240,244,248,0.95); }
+
+.quiz-meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.quiz-title-small { font-weight: 700; font-size: 0.95rem; color: var(--accent); }
+.student-badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.timer-box {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.4rem 0.9rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem; font-weight: 500; color: var(--accent);
+  min-width: 90px; justify-content: center;
+}
+.timer-box.warn { color: var(--warn); border-color: rgba(245,158,11,0.3); }
+.timer-box.danger { color: var(--danger); border-color: rgba(239,68,68,0.3); animation: timerBlink 0.6s infinite; }
+@keyframes timerBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.topbar-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+
+/* Per-question timer */
+.q-time-badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.progress-bar-wrap { height: 3px; background: var(--border); }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s ease; }
+
+/* Camera monitor */
+.cam-monitor {
+  position: fixed; bottom: 1rem; right: 1rem;
+  width: 120px; height: 90px;
+  border-radius: 10px; overflow: hidden;
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 20px rgba(0,212,255,0.3);
+  z-index: 200;
+}
+@media (max-width: 480px) { .cam-monitor { width: 80px; height: 60px; bottom: 0.5rem; right: 0.5rem; } }
+#video-monitor { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.cam-badge { position: absolute; top: 4px; left: 4px; background: var(--danger); border-radius: 50%; width: 8px; height: 8px; animation: pulse 1s infinite; }
+
+/* Quiz content */
+.quiz-content { flex: 1; padding: 2rem 1rem; max-width: 760px; margin: 0 auto; width: 100%; }
+
+/* Question nav */
+.q-nav { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 2rem; }
+.q-nav-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-dim); font-size: 0.78rem;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.q-nav-btn.current { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+.q-nav-btn.answered { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: var(--correct); }
+.q-nav-btn.answered.current { background: var(--correct); color: #000; border-color: var(--correct); }
+.q-nav-btn.slow-q::after { content: '⏱'; position: absolute; top: -6px; right: -6px; font-size: 0.55rem; }
+
+/* Question card */
+.q-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.8rem; margin-bottom: 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+.q-number { font-size: 0.73rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.8rem; font-family: 'JetBrains Mono', monospace; }
+.q-type-badge { display: inline-block; background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); border-radius: 4px; padding: 0.15rem 0.5rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: #a78bfa; margin-left: 0.5rem; }
+.q-text { font-size: 1rem; line-height: 1.7; color: var(--text); margin-bottom: 1.5rem; font-weight: 400; }
+
+/* Options */
+.options-list { display: flex; flex-direction: column; gap: 0.65rem; }
+.option-btn {
+  display: flex; align-items: center; gap: 0.9rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 0.85rem 1rem;
+  cursor: pointer; transition: all 0.15s; text-align: left;
+  color: var(--text); font-family: 'Sora', sans-serif;
+  font-size: 0.92rem; line-height: 1.5;
+}
+.option-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.05); }
+.option-btn.selected { border-color: var(--accent); background: rgba(0,212,255,0.1); color: var(--accent); }
+.opt-letter {
+  width: 28px; height: 28px; min-width: 28px;
+  border-radius: 6px; background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace; transition: all 0.15s;
+}
+.option-btn.selected .opt-letter { background: var(--accent); color: #000; }
+
+/* Fill input */
+.fill-input {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem; color: var(--text);
+  font-family: 'Sora', sans-serif; font-size: 0.95rem;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-user-select: text; user-select: text;
+}
+.fill-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
+.fill-input::placeholder { color: var(--text-muted); font-style: italic; }
+
+/* Controls */
+.q-controls { display: flex; gap: 0.75rem; justify-content: space-between; margin-top: 1rem; flex-wrap: wrap; }
+.btn-nav {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 0.7rem 1.4rem;
+  color: var(--text); font-family: 'Sora', sans-serif;
+  font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.btn-nav:hover { border-color: var(--accent); color: var(--accent); }
+.btn-submit-quiz {
+  background: linear-gradient(135deg, var(--correct), #059669);
+  border: none; border-radius: var(--radius-sm); padding: 0.7rem 1.8rem;
+  color: #fff; font-family: 'Sora', sans-serif; font-size: 0.88rem;
+  font-weight: 700; cursor: pointer; transition: all 0.15s; margin-left: auto;
+}
+.btn-submit-quiz:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+
+/* Unanswered warning */
+.unanswered-warn {
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-size: 0.83rem;
+  color: var(--warn);
+  margin-bottom: 1rem;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════
+   RESULTS SCREEN - ANIMATED
+═══════════════════════════════════════════ */
+#screen-results { padding: 2rem 1rem; }
+.results-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2.5rem 2rem;
+  width: 100%; max-width: 700px;
+  animation: slideUp 0.5s ease;
+}
+
+/* Animated score reveal */
+.score-circle-wrap { text-align: center; margin: 1.5rem 0; }
+.score-circle {
+  width: 150px; height: 150px; border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  margin: 0 auto; position: relative;
+  font-size: 2.4rem; font-weight: 700;
+  transition: all 0.5s ease;
+  animation: scorePop 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+}
+@keyframes scorePop {
+  from { transform: scale(0) rotate(-180deg); opacity: 0; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.score-circle svg {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+}
+.score-circle svg circle { fill: none; stroke-width: 6; transition: stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1) 0.5s; }
+.score-circle-inner {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+}
+.score-circle .score-sub { font-size: 0.75rem; font-weight: 500; color: var(--text-muted); }
+.score-pass svg circle.progress { stroke: var(--correct); }
+.score-pass .score-circle-inner { color: var(--correct); }
+.score-fail svg circle.progress { stroke: var(--danger); }
+.score-fail .score-circle-inner { color: var(--danger); }
+
+.score-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
+.stat-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 1rem; text-align: center;
+  animation: statPop 0.4s ease both;
+}
+.stat-box:nth-child(1) { animation-delay: 0.7s; }
+.stat-box:nth-child(2) { animation-delay: 0.85s; }
+.stat-box:nth-child(3) { animation-delay: 1s; }
+@keyframes statPop { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+.stat-val { font-size: 1.5rem; font-weight: 700; }
+.stat-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.2rem; }
+
+/* Slowest questions display */
+.slow-questions-box {
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius-sm);
+  padding: 1rem; margin: 1rem 0;
+  font-size: 0.82rem;
+}
+.slow-questions-box strong { color: var(--warn); display: block; margin-bottom: 0.5rem; }
+.slow-q-item { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+.slow-q-item:last-child { border: none; }
+.slow-q-time { font-family: 'JetBrains Mono', monospace; color: var(--warn); font-size: 0.8rem; }
+
+.results-details summary { cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--accent); margin-bottom: 1rem; list-style: none; display: flex; align-items: center; gap: 0.5rem; }
+.result-item { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.75rem; font-size: 0.88rem; line-height: 1.6; }
+.result-item .ri-q { color: var(--text-dim); margin-bottom: 0.4rem; }
+.result-item .ri-your { display: flex; align-items: center; gap: 0.4rem; }
+.result-item .ri-correct { color: var(--correct); }
+.result-item .ri-wrong { color: var(--danger); }
+.result-item .ri-ans { color: var(--text-dim); font-size: 0.82rem; margin-top: 0.2rem; }
+
+.submit-badge {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.5rem; background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: var(--radius-sm); padding: 0.8rem;
+  color: var(--correct); font-size: 0.85rem; margin-top: 1rem; font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+.site-footer {
+  position: relative; z-index: 1;
+  text-align: center; padding: 1rem;
+  font-size: 0.75rem; color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: rgba(10,14,26,0.8);
+  letter-spacing: 0.04em;
+}
+[data-theme="light"] .site-footer { background: rgba(240,244,248,0.8); }
+.site-footer span { color: var(--accent); font-weight: 600; }
+
+/* ═══════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+  z-index: 999; padding: 1rem; display: none;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 2rem;
+  max-width: 440px; width: 100%; text-align: center;
+  animation: slideUp 0.3s ease;
+}
+.modal-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.modal-box h3 { font-size: 1.2rem; margin-bottom: 0.6rem; }
+.modal-box p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.6; }
+.modal-actions { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.5rem; }
+.btn-modal-ok { background: linear-gradient(135deg, var(--accent), #0099cc); border: none; border-radius: var(--radius-sm); padding: 0.65rem 1.6rem; color: #000; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+.btn-modal-cancel { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.65rem 1.6rem; color: var(--text); font-family: 'Sora', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+
+/* Unanswered confirm modal */
+.unanswered-list { max-height: 150px; overflow-y: auto; text-align: left; margin: 0.8rem 0; }
+.unanswered-list li { padding: 0.25rem 0; color: var(--warn); font-size: 0.82rem; }
+
+/* Warning overlay */
+#warning-overlay {
+  position: fixed; inset: 0;
+  background: rgba(239,68,68,0.15);
+  border: 3px solid var(--danger);
+  display: none; align-items: center; justify-content: center;
+  z-index: 998; pointer-events: none;
+}
+#warning-overlay.active { display: flex; }
+.warning-banner { background: var(--danger); color: #fff; font-size: 1.1rem; font-weight: 700; padding: 1rem 2rem; border-radius: 12px; text-align: center; animation: shake 0.4s ease; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+/* Tab switch overlay */
+#tab-warning-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+  display: none; align-items: center; justify-content: center;
+  z-index: 1000; flex-direction: column; gap: 1rem;
+}
+#tab-warning-overlay.active { display: flex; }
+#tab-warning-overlay .tw-box {
+  background: var(--surface); border: 2px solid var(--danger);
+  border-radius: 18px; padding: 2rem; max-width: 420px; text-align: center;
+}
+#tab-warning-overlay .tw-box h2 { color: var(--danger); font-size: 1.3rem; margin-bottom: 0.5rem; }
+#tab-warning-overlay .tw-box p { color: var(--text-dim); font-size: 0.88rem; }
+
+/* Screenshot overlay */
+#screenshot-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+  display: none; align-items: center; justify-content: center;
+  z-index: 1001; flex-direction: column; gap: 1rem;
+}
+#screenshot-overlay.active { display: flex; }
+#screenshot-overlay .ss-box {
+  background: var(--surface); border: 2px solid var(--danger);
+  border-radius: 18px; padding: 2rem; max-width: 420px; text-align: center;
+}
+#screenshot-overlay .ss-box h2 { color: var(--danger); font-size: 1.3rem; margin-bottom: 0.5rem; }
+#screenshot-overlay .ss-box p { color: var(--text-dim); font-size: 0.88rem; }
+
+/* Resume banner */
+.resume-banner {
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.35);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-size: 0.82rem; color: var(--warn);
+  margin-bottom: 1rem; display: flex;
+  align-items: center; gap: 0.6rem;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Sound toggle */
+.sound-toggle {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.35rem 0.7rem;
+  font-size: 0.78rem; color: var(--text-dim); cursor: pointer;
+  font-family: 'Sora', sans-serif; transition: all 0.2s;
+}
+.sound-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.sound-toggle.muted { opacity: 0.5; }
+
+/* Confetti canvas */
+#confetti-canvas {
+  position: fixed; inset: 0; pointer-events: none;
+  z-index: 1000; display: none;
+}
+
+/* ═══════════════════════════════════════════
+   SCHEDULE / LOCKED SCREEN
+═══════════════════════════════════════════ */
+.locked-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  width: 100%; max-width: 500px;
+  text-align: center;
+  animation: slideUp 0.5s ease;
+  box-shadow: var(--shadow);
+}
+.locked-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+.locked-card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.4rem; }
+.locked-card .locked-sub { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+.schedule-block {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem;
+}
+.schedule-block .sb-label {
+  font-size: 0.7rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+.schedule-block .sb-val {
+  font-size: 0.95rem; font-weight: 700;
+  color: var(--accent); font-family: 'JetBrains Mono', monospace;
+}
+
+.countdown-box {
+  background: rgba(0,212,255,0.06);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: var(--radius-sm);
+  padding: 1.2rem;
+  margin: 1rem 0;
+}
+.countdown-box .cd-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+.countdown-tiles {
+  display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;
+}
+.cd-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  min-width: 64px;
+  text-align: center;
+}
+.cd-tile .cd-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.8rem; font-weight: 700; color: var(--accent);
+  line-height: 1;
+}
+.cd-tile .cd-unit {
+  font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted); margin-top: 0.2rem;
+}
+
+.ended-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 20px; padding: 0.4rem 0.9rem;
+  font-size: 0.82rem; color: var(--danger); margin-top: 0.5rem;
+}
+.open-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 20px; padding: 0.4rem 0.9rem;
+  font-size: 0.82rem; color: var(--correct); margin-top: 0.5rem;
+}
+
+/* ── ADMIN PANEL ── */
+.admin-fab {
+  position: fixed; bottom: 1.2rem; left: 1.2rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; cursor: pointer;
+  z-index: 400;
+  transition: all 0.2s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+.admin-fab:hover { border-color: var(--accent); transform: scale(1.1); }
+
+.admin-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 2000; padding: 1rem;
+}
+.admin-modal.active { display: flex; }
+.admin-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 2rem;
+  width: 100%; max-width: 520px;
+  animation: slideUp 0.3s ease;
+  max-height: 90vh; overflow-y: auto;
+}
+.admin-panel h3 {
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--accent); margin-bottom: 0.3rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.admin-panel .admin-sub { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+.admin-field { margin-bottom: 1.1rem; }
+.admin-field label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 0.4rem; }
+.admin-field input[type=datetime-local],
+.admin-field input[type=password],
+.admin-field input[type=number],
+.admin-field select {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 0.7rem 0.9rem; color: var(--text);
+  font-family: 'Sora', sans-serif; font-size: 0.9rem; outline: none;
+  transition: border-color 0.2s;
+}
+.admin-field input:focus, .admin-field select:focus { border-color: var(--accent); }
+
+.admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.admin-divider { border: none; border-top: 1px solid var(--border); margin: 1.2rem 0; }
+.admin-status-bar {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 0.8rem;
+  font-size: 0.82rem; color: var(--text-dim); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.admin-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.admin-status-dot.green { background: var(--correct); }
+.admin-status-dot.red { background: var(--danger); }
+.admin-status-dot.yellow { background: var(--warn); }
+
+.btn-admin-save {
+  width: 100%; background: linear-gradient(135deg, var(--accent2), #5b21b6);
+  border: none; border-radius: var(--radius-sm); padding: 0.8rem;
+  color: #fff; font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 0.92rem; cursor: pointer; transition: all 0.15s; margin-top: 0.5rem;
+}
+.btn-admin-save:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.4); }
+.btn-admin-close {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 0.7rem;
+  color: var(--text); font-family: 'Sora', sans-serif;
+  font-weight: 600; font-size: 0.88rem; cursor: pointer; margin-top: 0.5rem;
+}
+.admin-saved-msg {
+  color: var(--correct); font-size: 0.82rem; text-align: center;
+  margin-top: 0.5rem; display: none;
+}
+.admin-login { margin-bottom: 1rem; }
+.admin-error { color: var(--danger); font-size: 0.8rem; margin-top: 0.4rem; display: none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+@media (max-width: 600px) {
+  .reg-card, .camera-card, .results-card { padding: 1.5rem 1rem; }
+  .q-card { padding: 1.2rem; }
+  .quiz-topbar { padding: 0.5rem 1rem; }
+  .score-stats { grid-template-columns: 1fr 1fr; }
+  .q-nav-btn { width: 30px; height: 30px; font-size: 0.7rem; }
+}
+@media (max-width: 380px) { .score-stats { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE (global) -->
+<button class="theme-toggle" id="theme-toggle" title="Toggle dark/light mode">
+  <span class="toggle-icon" id="toggle-icon">☀️</span>
+  <span id="toggle-label">Light</span>
+</button>
+
+<!-- CONFETTI -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══════ SCREEN: LOCKED (quiz not open yet / ended) ═══════ -->
+<div id="screen-locked" class="screen">
+  <div class="locked-card">
+    <div class="locked-icon" id="locked-icon">🔐</div>
+    <h2 id="locked-title">Quiz Not Open Yet</h2>
+    <p class="locked-sub" id="locked-sub">This quiz is scheduled and not yet available.</p>
+    <div class="schedule-grid" id="locked-schedule-grid" style="display:none">
+      <div class="schedule-block">
+        <div class="sb-label">📅 Opens</div>
+        <div class="sb-val" id="locked-open-val">—</div>
+      </div>
+      <div class="schedule-block">
+        <div class="sb-label">🔒 Closes</div>
+        <div class="sb-val" id="locked-close-val">—</div>
+      </div>
+    </div>
+    <div class="countdown-box" id="locked-countdown-box">
+      <div class="cd-label" id="cd-label">Quiz opens in</div>
+      <div class="countdown-tiles">
+        <div class="cd-tile"><div class="cd-num" id="cd-days">00</div><div class="cd-unit">Days</div></div>
+        <div class="cd-tile"><div class="cd-num" id="cd-hours">00</div><div class="cd-unit">Hours</div></div>
+        <div class="cd-tile"><div class="cd-num" id="cd-mins">00</div><div class="cd-unit">Mins</div></div>
+        <div class="cd-tile"><div class="cd-num" id="cd-secs">00</div><div class="cd-unit">Secs</div></div>
+      </div>
+    </div>
+    <div id="locked-badge"></div>
+    <p style="font-size:0.75rem;color:var(--text-muted);margin-top:1rem;">Please return at the scheduled time. Contact your teacher for assistance.</p>
+  </div>
+</div>
+
+<!-- ═══════ ADMIN FAB + PANEL ═══════ -->
+<button class="admin-fab" id="admin-fab" title="Teacher Admin">⚙️</button>
+
+<div class="admin-modal" id="admin-modal">
+  <div class="admin-panel">
+    <h3>⚙️ Teacher Admin Panel</h3>
+    <p class="admin-sub">Set quiz schedule, password, and settings. Only the teacher should access this.</p>
+    <div id="admin-login-section" class="admin-login">
+      <div class="admin-field">
+        <label>Admin Password</label>
+        <input type="password" id="admin-pwd-input" placeholder="Enter admin password…">
+        <div class="admin-error" id="admin-pwd-error">❌ Incorrect password.</div>
+      </div>
+      <button class="btn-admin-save" id="btn-admin-login">Unlock Panel →</button>
+      <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.6rem;text-align:center;">Default password: <code style="color:var(--accent)">sirEmma2025</code></p>
+    </div>
+    <div id="admin-settings-section" style="display:none">
+      <div class="admin-status-bar" id="admin-status-bar">
+        <div class="admin-status-dot yellow" id="admin-status-dot"></div>
+        <span id="admin-status-text">Checking schedule…</span>
+      </div>
+      <hr class="admin-divider">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.8rem;">📅 Quiz Window</div>
+      <div class="admin-row">
+        <div class="admin-field">
+          <label>Open Date &amp; Time</label>
+          <input type="datetime-local" id="admin-open-dt">
+        </div>
+        <div class="admin-field">
+          <label>Close Date &amp; Time</label>
+          <input type="datetime-local" id="admin-close-dt">
+        </div>
+      </div>
+      <div class="admin-field">
+        <label>Timezone Display Label (e.g. GMT, WAT)</label>
+        <input type="text" id="admin-tz-label" placeholder="e.g. GMT+0, WAT" maxlength="10">
+      </div>
+      <hr class="admin-divider">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.8rem;">⏱ Quiz Settings</div>
+      <div class="admin-row">
+        <div class="admin-field">
+          <label>Duration (minutes)</label>
+          <input type="number" id="admin-duration" min="5" max="180" value="60">
+        </div>
+        <div class="admin-field">
+          <label>Pass Mark (%)</label>
+          <input type="number" id="admin-pass" min="1" max="100" value="50">
+        </div>
+      </div>
+      <hr class="admin-divider">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.8rem;">🔑 Change Admin Password</div>
+      <div class="admin-row">
+        <div class="admin-field">
+          <label>New Password</label>
+          <input type="password" id="admin-new-pwd" placeholder="New password">
+        </div>
+        <div class="admin-field">
+          <label>Confirm Password</label>
+          <input type="password" id="admin-confirm-pwd" placeholder="Confirm">
+        </div>
+      </div>
+      <hr class="admin-divider">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.8rem;">🔓 Manual Override</div>
+      <div class="admin-field">
+        <label>Force quiz state</label>
+        <select id="admin-override">
+          <option value="auto">Auto (use schedule)</option>
+          <option value="open">Force OPEN — allow students in now</option>
+          <option value="locked">Force LOCKED — block all students</option>
+        </select>
+      </div>
+      <button class="btn-admin-save" id="btn-admin-save">💾 Save Settings</button>
+      <div class="admin-saved-msg" id="admin-saved-msg">✅ Settings saved!</div>
+      <button class="btn-admin-close" id="btn-admin-close-inner">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: REGISTRATION ═══════ -->
+<div id="screen-register" class="screen active">
+  <div class="reg-card">
+    <div class="brand">
+      <div class="brand-icon">📡</div>
+      <h1>BISEASE SENIOR HIGH SCHOOL</h1>
+      <h2>Computing Systems Quiz</h2>
+      <p>Computer Science Assessment</p>
+    </div>
+    <div id="resume-notice" style="display:none" class="resume-banner">
+      ⚡ <span>A previous session was found. Registering the same name/class will resume it.</span>
+    </div>
+    <div class="one-attempt-badge">
+      ⚠️ &nbsp;<strong>One Attempt Only</strong> — Your submission is final and cannot be retaken.
+    </div>
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="input-name" placeholder="e.g. Kwame Mensah" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="form-group">
+      <label>Class / Form</label>
+      <select id="input-class">
+        <option value="">— Select your class —</option>
+        <option>Gen.Arts 1A</option>
+        <option>Science Form 1</option>
+        <option>Business Form 1</option>
+        <option>Form 2B</option>
+        <option>Form 3A</option>
+        <option>Form 3B</option>
+      </select>
+    </div>
+    <div class="rules-box">
+      <strong>⚠ Examination Rules</strong>
+      <ul>
+        <li>You have <strong>60 minutes</strong> to complete all questions.</li>
+        <li>Do not switch tabs or minimise the browser window.</li>
+        <li>Camera monitoring is active throughout the quiz.</li>
+        <li>Moving away from the camera will trigger a warning.</li>
+        <li>Screenshots and screen recording are detected.</li>
+        <li>Each student gets a <strong>unique randomised order</strong> of questions and options.</li>
+        <li>Progress is auto-saved every 30 seconds.</li>
+        <li>You may only attempt this quiz <strong>once</strong>.</li>
+      </ul>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="agree-check">
+      <label for="agree-check">I have read and agree to the examination rules. I will attempt this quiz honestly and independently.</label>
+    </div>
+    <button class="btn-primary" id="btn-start-camera" disabled>Continue to Camera Setup →</button>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: ALREADY ATTEMPTED ═══════ -->
+<div id="screen-attempted" class="screen">
+  <div class="attempted-card">
+    <div class="icon">🔒</div>
+    <h2>Already Submitted</h2>
+    <p>You have already completed this quiz. Only one attempt is allowed per student.</p>
+    <div class="prev-score-box">
+      <div class="big" id="prev-score-display">—</div>
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.3rem;">Your previous score</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.2rem;" id="prev-date-display"></div>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-muted);">Please contact your teacher if you believe this is an error.</p>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: CAMERA ═══════ -->
+<div id="screen-camera" class="screen">
+  <div class="camera-card">
+    <h2>📸 Camera Verification</h2>
+    <p>Your camera is required to monitor you during the exam. Please ensure your face is clearly visible.</p>
+    <video id="video-preview" autoplay playsinline muted></video>
+    <div class="camera-status">
+      <div class="status-dot" id="cam-status-dot"></div>
+      <span id="cam-status-text">Requesting camera access…</span>
+    </div>
+    <button class="btn-primary" id="btn-begin-quiz" disabled>Begin Quiz →</button>
+    <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.75rem;">Camera access is mandatory. If denied, you cannot proceed.</p>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: QUIZ ═══════ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-layout">
+    <div class="quiz-topbar">
+      <div class="quiz-meta">
+        <span class="quiz-title-small">📡 ICT Systems Quiz</span>
+        <span class="student-badge" id="topbar-student">—</span>
+      </div>
+      <div class="topbar-right">
+        <span class="q-time-badge" id="q-time-display" title="Time on this question">⏱ 0s</span>
+        <span style="font-size:0.78rem;color:var(--text-muted);" id="q-counter">Q 1 / 60</span>
+        <div class="timer-box" id="timer-display">60:00</div>
+        <button class="sound-toggle" id="sound-toggle" title="Toggle sounds">🔊</button>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="quiz-content">
+      <div id="unanswered-warn" class="unanswered-warn"></div>
+      <div class="q-nav" id="q-nav"></div>
+      <div class="q-card" id="q-card">
+        <div class="q-number" id="q-label">Question 1</div>
+        <div class="q-text" id="q-text"></div>
+        <div id="q-answer-area"></div>
+      </div>
+      <div class="q-controls">
+        <button class="btn-nav" id="btn-prev">← Prev</button>
+        <button class="btn-nav" id="btn-next">Next →</button>
+        <button class="btn-submit-quiz" id="btn-submit-quiz">Submit Quiz ✓</button>
+      </div>
+    </div>
+  </div>
+  <div class="cam-monitor">
+    <div class="cam-badge"></div>
+    <video id="video-monitor" autoplay playsinline muted></video>
+  </div>
+  <div class="autosave-indicator" id="autosave-indicator">
+    <div class="autosave-dot"></div>
+    <span id="autosave-text">Auto-save on</span>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: RESULTS ═══════ -->
+<div id="screen-results" class="screen">
+  <div class="results-card">
+    <div style="text-align:center;margin-bottom:1rem;">
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Quiz Complete</div>
+      <h2 style="font-size:1.5rem;margin-top:0.3rem;">Your Results</h2>
+    </div>
+    <div class="score-circle-wrap">
+      <div class="score-circle" id="score-circle">
+        <svg viewBox="0 0 150 150">
+          <circle class="track" cx="75" cy="75" r="68" stroke="var(--border)"/>
+          <circle class="progress" id="score-arc" cx="75" cy="75" r="68" stroke-dasharray="427" stroke-dashoffset="427"/>
+        </svg>
+        <div class="score-circle-inner">
+          <span id="score-pct">0%</span>
+          <span class="score-sub">Score</span>
+        </div>
+      </div>
+    </div>
+    <div class="score-stats" id="score-stats"></div>
+    <div id="slow-questions-section" class="slow-questions-box" style="display:none">
+      <strong>⏱ Questions That Took Longest</strong>
+      <div id="slow-q-list"></div>
+    </div>
+    <div class="submit-badge" id="submit-badge" style="display:none">
+      <span>✓</span> <span id="submit-msg">Responses submitted to teacher</span>
+    </div>
+    <div class="submit-badge" id="submit-error" style="display:none;background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--danger);">
+      ⚠ Could not submit to Google Sheets. Please notify your teacher.
+    </div>
+    <details class="results-details" style="margin-top:1.5rem;">
+      <summary>📋 View Answer Breakdown</summary>
+      <div id="results-list"></div>
+    </details>
+  </div>
+</div>
+
+<!-- ═══════ MODALS ═══════ -->
+<div class="modal-overlay" id="modal-submit">
+  <div class="modal-box">
+    <div class="modal-icon">📤</div>
+    <h3>Submit your quiz?</h3>
+    <p>Once submitted you cannot change your answers. Make sure you have reviewed all questions.<br><br>
+    <strong style="color:var(--warn);">⚠ This is your only attempt. Submission is final.</strong></p>
+    <div id="modal-unanswered-list" class="unanswered-list" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" id="modal-cancel">Go Back</button>
+      <button class="btn-modal-ok" id="modal-confirm">Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-timeout">
+  <div class="modal-box">
+    <div class="modal-icon">⏰</div>
+    <h3>Time's Up!</h3>
+    <p>Your time has expired. Your answers are being submitted automatically.</p>
+    <div class="modal-actions">
+      <button class="btn-modal-ok" id="modal-timeout-ok">View Results</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tab switch warning -->
+<div id="tab-warning-overlay">
+  <div class="tw-box">
+    <div style="font-size:2rem;margin-bottom:0.5rem;">🚫</div>
+    <h2>Tab Switching Detected!</h2>
+    <p>Switching tabs or minimising the window is not allowed.<br><br>
+    <strong id="tab-warn-count" style="color:var(--warn);">Warning 1 of 3</strong><br>
+    This incident has been recorded.</p>
+    <div class="modal-actions" style="justify-content:center">
+      <button class="btn-modal-ok" id="btn-tab-resume">Return to Quiz</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screenshot detected -->
+<div id="screenshot-overlay">
+  <div class="ss-box">
+    <div style="font-size:2rem;margin-bottom:0.5rem;">📵</div>
+    <h2>Screenshot / Recording Detected!</h2>
+    <p>Screenshots and screen recording are not permitted during the examination. This incident has been recorded.</p>
+    <div class="modal-actions" style="justify-content:center">
+      <button class="btn-modal-ok" id="btn-ss-dismiss">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<!-- Camera movement warning -->
+<div id="warning-overlay">
+  <div class="warning-banner">⚠ Face not detected! Please face the camera.</div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  Bisease Senior High School &nbsp;|&nbsp; Computing Systems Quiz &nbsp;|&nbsp; <span>Powered by Sir Emma</span>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  CONFIGURATION
+// ════════════════════════════════════════════════════════
+const CONFIG = {
+  QUIZ_DURATION_SECONDS: 60 * 60,
+  GOOGLE_SHEET_URL: 'https://script.google.com/macros/s/AKfycbzvHDFjjekB_kG1ZPrD-88_T_PzCqLeDRYYaMRWpzQ8s93hqe_9eIC7a5Y_ju0gTowCvA/exec',
+  FACE_CHECK_INTERVAL: 2000,
+  PASS_PERCENT: 50,
+  STORAGE_PREFIX: 'bisease_quiz_v2_',
+  AUTOSAVE_INTERVAL: 30000,
+};
+
+// ════════════════════════════════════════════════════════
+//  SOUND ENGINE
+// ════════════════════════════════════════════════════════
+let soundEnabled = true;
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playTone(freq, type, duration, gain = 0.3, delay = 0) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.value = freq;
+    gainNode.gain.setValueAtTime(0, ctx.currentTime + delay);
+    gainNode.gain.linearRampToValueAtTime(gain, ctx.currentTime + delay + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+    osc.start(ctx.currentTime + delay);
+    osc.stop(ctx.currentTime + delay + duration);
+  } catch(e) {}
+}
+
+const SFX = {
+  select: () => playTone(660, 'sine', 0.08, 0.15),
+  timerWarn: () => {
+    playTone(440, 'square', 0.08, 0.1);
+    playTone(440, 'square', 0.08, 0.1, 0.15);
+  },
+  timerDanger: () => {
+    playTone(330, 'sawtooth', 0.06, 0.1);
+  },
+  submit: () => {
+    playTone(523, 'sine', 0.15, 0.2);
+    playTone(659, 'sine', 0.15, 0.2, 0.15);
+    playTone(784, 'sine', 0.25, 0.25, 0.3);
+  },
+  chime: () => {
+    [523, 659, 784, 1046].forEach((f, i) => playTone(f, 'sine', 0.3, 0.25, i * 0.1));
+  },
+  warning: () => {
+    playTone(220, 'sawtooth', 0.3, 0.2);
+    playTone(180, 'sawtooth', 0.3, 0.2, 0.35);
+  }
+};
+
+document.getElementById('sound-toggle').addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('sound-toggle');
+  btn.textContent = soundEnabled ? '🔊' : '🔇';
+  btn.classList.toggle('muted', !soundEnabled);
+});
+
+// ════════════════════════════════════════════════════════
+//  THEME
+// ════════════════════════════════════════════════════════
+const html = document.documentElement;
+let isDark = true;
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  isDark = !isDark;
+  html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('toggle-icon').textContent = isDark ? '☀️' : '🌙';
+  document.getElementById('toggle-label').textContent = isDark ? 'Light' : 'Dark';
+  try { localStorage.setItem('bisease_theme', isDark ? 'dark' : 'light'); } catch(e) {}
+});
+
+// Load saved theme
+try {
+  const saved = localStorage.getItem('bisease_theme');
+  if (saved === 'light') {
+    isDark = false; html.setAttribute('data-theme', 'light');
+    document.getElementById('toggle-icon').textContent = '🌙';
+    document.getElementById('toggle-label').textContent = 'Dark';
+  }
+} catch(e) {}
+
+// ════════════════════════════════════════════════════════
+//  QUESTION BANK
+// ════════════════════════════════════════════════════════
+const QUESTIONS_BANK = [
+  {id:1, type:'fill', text:'The address bus and the data bus serve different roles: the address bus carries ________, while the data bus carries the actual data between components.', answer:'memory addresses'},
+  {id:2, type:'fill', text:'The processor uses the ________ bus to send control signals to other devices.', answer:'control'},
+  {id:3, type:'fill', text:'The ________ register stores the address in memory that is currently being read from or written to.', answer:'Memory Address Register (MAR)'},
+  {id:4, type:'fill', text:'Cache memory improves CPU performance because it allows the processor to retrieve data directly from cache without waiting to retrieve it from ________.', answer:'RAM / main memory'},
+  {id:5, type:'fill', text:'The part of the CPU that generates regular electrical pulses to keep all components synchronised is called the ________.', answer:'system clock'},
+  {id:6, type:'fill', text:'________ is a fast random-access memory that temporarily stores data and instructions the CPU is likely to use.', answer:'Cache memory'},
+  {id:7, type:'fill', text:'The ________ register stores the memory address of the next instruction to be executed.', answer:'Program Counter (PC)'},
+  {id:24, type:'fill', text:'A special-purpose computer system that is completely encapsulated by the device it controls is called an ________.', answer:'embedded system'},
+  {id:48, type:'fill', text:'The ________ on a motherboard are connection points where you can add extra components like graphics cards and sound cards to enhance the computer\'s capabilities.', answer:'expansion slots'},
+  {id:53, type:'fill', text:'An example of an operating system used on mobile phones is ________.', answer:'Android / iOS'},
+  {id:8, type:'mcq', text:'If the clock speed of a CPU is doubled, which of the following outcomes is most likely?',
+    options:['The CPU will perform twice as many cycles per second, potentially improving performance, but will also generate significantly more heat','The CPU will use half the amount of cache memory','The number of registers in the CPU will automatically increase','The Control Unit will no longer need to coordinate instruction execution'], answer:0},
+  {id:9, type:'mcq', text:'A television set, a washing machine, and a car all contain processors. What does this suggest about the role of the CPU beyond traditional computers?',
+    options:['CPUs are only useful in devices that connect to the internet','CPUs are embedded in many everyday devices to manage and automate specific processing tasks, demonstrating their broad application in modern technology','All devices with CPUs perform the same type of processing as desktop computers','Everyday devices use CPUs only for display purposes'], answer:1},
+  {id:10, type:'mcq', text:'A CPU has a clock speed of 3.5 GHz. What does this tell you about the processor?',
+    options:['It has 3.5 gigabytes of storage','It can execute 3.5 billion cycles per second','It has 3.5 cores for parallel processing','It uses 3.5 watts of power per second'], answer:1},
+  {id:11, type:'mcq', text:'Which bus would the processor use to send the actual data to another component?',
+    options:['Address bus','Control bus','Data bus','Internal bus'], answer:2},
+  {id:12, type:'mcq', text:'The Control Unit communicates with the ALU and registers using which of the following?',
+    options:['External system buses','The clock signal only','CPU internal buses','Cache memory pathways'], answer:2},
+  {id:13, type:'mcq', text:'Which component of the CPU controls the order in which instructions are executed?',
+    options:['Arithmetic and Logic Unit','Cache Memory','Control Unit','System Bus'], answer:2},
+  {id:14, type:'mcq', text:'Which of the following is the name given to the set of commands that a CPU can understand and execute?',
+    options:['Control unit','Instruction set architecture','Machine language compiler','Register file'], answer:1},
+  {id:15, type:'mcq', text:'Which of the following best describes an embedded system?',
+    options:['A general-purpose computer that can run any software','A large mainframe computer used in banks','A special-purpose computer system encapsulated within the device it controls','A portable computer with wireless connectivity'], answer:2},
+  {id:16, type:'mcq', text:'What is the collective name for the address bus, data bus, and control bus?',
+    options:['Internal bus','Memory bus','Peripheral bus','System bus'], answer:3},
+  {id:17, type:'mcq', text:'During which stage of the machine cycle does the CPU carry out arithmetic or logical operations?',
+    options:['Decode','Execute','Fetch','Store'], answer:1},
+  {id:18, type:'mcq', text:'In which type of memory is the software of an embedded system typically stored?',
+    options:['Cache memory','Flash ROM','Hard disk drive','RAM'], answer:1},
+  {id:19, type:'mcq', text:'A student is tracing the Fetch stage of the machine cycle. Which correctly describes the sequence of events during this stage?',
+    options:['The CPU decodes the instruction and sends it to the ALU','The program counter sends an address via the address bus; the instruction is transferred via the data bus to the CPU','The result of the instruction is written back to memory via the data bus','The instruction is broken into micro-operations by the control unit'], answer:1},
+  {id:20, type:'mcq', text:'Which of the following correctly explains the role of the control bus in the machine cycle?',
+    options:['It carries the binary data being processed by the CPU','It carries the memory addresses of instructions and data','It carries control signals that coordinate the activities of the CPU and other components','It stores the decoded instruction before execution'], answer:2},
+  {id:21, type:'mcq', text:'A program contains the instruction: add two numbers and store the result. Which stage of the machine cycle is responsible for carrying out the addition?',
+    options:['Decode','Execute','Fetch','Store'], answer:1},
+  {id:22, type:'mcq', text:'Akosua uses a digital sewing machine. The machine automatically adjusts stitch speed based on fabric thickness. Which type of computing system is this most likely using?',
+    options:['A general-purpose desktop computer','A cloud-based server','An embedded system','A mainframe computer'], answer:2},
+  {id:23, type:'mcq', text:'Which of the following correctly explains the role of the control bus? (applied)',
+    options:['It carries the binary data being processed by the CPU','It carries the memory addresses of instructions and data','It carries control signals that coordinate the activities of the CPU and other components','It stores the decoded instruction before execution'], answer:2},
+  {id:25, type:'mcq', text:'What does the acronym RAID stand for?',
+    options:['Redundant Array of Independent Disks','Remote Access and Internet Data','Rapid Array of Integrated Drives','Redundant Allocation of Internet Devices'], answer:0},
+  {id:26, type:'mcq', text:'Which of the following is a popular cloud storage service?',
+    options:['Microsoft Excel','Google Drive','Adobe Photoshop','Mozilla Firefox'], answer:1},
+  {id:27, type:'mcq', text:'Which device enables a computer to connect to a wired network?',
+    options:['WAP','Hub','NIC','Repeater'], answer:2},
+  {id:28, type:'mcq', text:'What is the full meaning of WAP in networking?',
+    options:['Wide Area Protocol','Wireless Access Point','Wired Adapter Port','Web Application Platform'], answer:1},
+  {id:29, type:'mcq', text:'Which networking device broadcasts incoming data to all connected devices?',
+    options:['Switch','Router','Hub','NIC'], answer:2},
+  {id:30, type:'mcq', text:'Which device connects different networks and directs data packets between them?',
+    options:['Hub','Switch','Repeater','Router'], answer:3},
+  {id:31, type:'mcq', text:'A NAS device is typically used for which of the following?',
+    options:['Converting analogue signals to digital','Centralised data storage and file sharing over a network','Extending Wi-Fi coverage in large buildings','Connecting a local network to the internet'], answer:1},
+  {id:32, type:'mcq', text:'Which of the following best describes data redundancy?',
+    options:['Deleting duplicate files to save storage space','Storing multiple copies of the same data in more than one place','Compressing data to reduce file size','Encrypting data to prevent unauthorised access'], answer:1},
+  {id:33, type:'mcq', text:'A MAC address is used to identify which of the following?',
+    options:['A file stored on a hard drive','A device on a network','A cloud storage account','An internet service provider'], answer:1},
+  {id:34, type:'mcq', text:'Which networking technology does a NAS device use to serve file-based data?',
+    options:['Fibre Channel','Bluetooth','Ethernet','Cellular'], answer:2},
+  {id:35, type:'mcq', text:'A large enterprise needs high-speed access to large volumes of block-based data. Which storage solution is best suited?',
+    options:['Cloud storage via Google Drive','A USB external hard drive','A NAS device','A SAN device'], answer:3},
+  {id:36, type:'mcq', text:'A Wireless NIC is installed in a laptop. What does this allow the laptop to do?',
+    options:['Connect to a wired Ethernet network only','Store files on a NAS device','Connect to wireless networks such as Wi-Fi','Convert digital signals to analogue signals'], answer:2},
+  {id:37, type:'mcq', text:'Which correctly describes the primary difference between a router and a switch?',
+    options:['Routers connect devices within a network; switches connect different networks','Routers connect different networks; switches connect devices within a network','Routers store data; switches transmit data wirelessly','Routers amplify signals; switches convert signals'], answer:1},
+  {id:38, type:'mcq', text:'A NAS device contains four hard drives and uses RAID. How does RAID improve reliability?',
+    options:['It increases the speed of the internet connection','It distributes data across multiple drives to protect against disk failure','It compresses files to create more storage space','It encrypts data to prevent unauthorised access'], answer:1},
+  {id:39, type:'mcq', text:'A small business is choosing between NAS and SAN with limited IT staff. Which is more appropriate?',
+    options:['SAN, because it uses Fibre Channel which is faster','NAS, because it is less expensive and easier to set up','SAN, because it can store block-based data','NAS, because it requires more IT staff to manage'], answer:1},
+  {id:40, type:'mcq', text:'Which component is installed through the CPU socket onto the motherboard?',
+    options:['RAM module','Graphics card','Central Processing Unit','Power connector'], answer:2},
+  {id:41, type:'mcq', text:'What does GPU stand for?',
+    options:['General Processing Unit','Graphics Processing Unit','Global Power Unit','Graphical Program Utility'], answer:1},
+  {id:42, type:'mcq', text:'Which motherboard component is the "glue" that manages data flow between all connected parts?',
+    options:['BIOS','CPU socket','Chipset','RAM slot'], answer:2},
+  {id:43, type:'mcq', text:'What is the function of power connectors on a motherboard?',
+    options:['To connect storage drives to the system','To provide electricity to all components','To expand the number of USB ports','To cool the processor'], answer:1},
+  {id:44, type:'mcq', text:'What does a heatsink do on a motherboard?',
+    options:['Stores data temporarily','Connects the CPU to RAM','Dissipates heat from components','Manages the boot process'], answer:2},
+  {id:45, type:'mcq', text:'Which motherboard component allows you to attach HDDs and SSDs?',
+    options:['Expansion slots','Storage connectors','I/O ports','RAM slots'], answer:1},
+  {id:46, type:'mcq', text:'Which of the following is a more modern replacement for the BIOS?',
+    options:['DSP','GPU','UEFI','SRAM'], answer:2},
+  {id:47, type:'mcq', text:'Why is the chipset compared to a "traffic police officer" on the motherboard?',
+    options:['It physically blocks components from overheating','It controls and directs the flow of data between all connected components','It stores instructions for starting the computer','It provides power to all components on the board'], answer:1},
+  {id:49, type:'mcq', text:'Which of the following is an example of an operating system?',
+    options:['Microsoft Word','Google Chrome','Microsoft Windows','VLC Media Player'], answer:2},
+  {id:50, type:'mcq', text:'Which of the following best describes a device driver?',
+    options:['A program that manages files on a hard drive','A program that controls a specific hardware device attached to a computer','A program that provides a graphical user interface','A program that compresses files to save storage space'], answer:1},
+  {id:51, type:'mcq', text:'Which category of software does an anti-virus program belong to?',
+    options:['Application software','Productivity software','System software','Educational software'], answer:2},
+  {id:52, type:'mcq', text:'Which of the following is an example of multimedia software?',
+    options:['Microsoft Windows','VLC Media Player','A printer driver','Android OS'], answer:1},
+  {id:54, type:'mcq', text:'A user installs a new printer but it does not work. Which type of software is most likely missing?',
+    options:['Productivity software','Utility software','A device driver','An operating system update'], answer:2},
+  {id:55, type:'mcq', text:'A user is streaming music while typing a document. Which OS feature makes this possible?',
+    options:['GUI','Device driver management','Multitasking','File compression'], answer:2},
+  {id:56, type:'mcq', text:'Which type of storage uses laser light to read and write data?',
+    options:['Magnetic storage','Flash memory','Optical storage','Network storage'], answer:2},
+  {id:57, type:'mcq', text:'RAID 1 is also known as:',
+    options:['Striping','Parity','Mirroring','Spanning'], answer:2},
+  {id:58, type:'mcq', text:'SAN (Storage Area Network) uses which protocol for high-speed data transfer?',
+    options:['HTTP','NFS','Fibre Channel','FTP'], answer:2},
+  {id:59, type:'mcq', text:'Which CPU socket type has the pins on the MOTHERBOARD (not the CPU)?',
+    options:['PGA (Pin Grid Array)','BGA (Ball Grid Array)','LGA (Land Grid Array)','ZIF (Zero Insertion Force)'], answer:2},
+  {id:60, type:'mcq', text:'A sound card built directly into the motherboard is referred to as:',
+    options:['A dedicated sound card','An external sound card','An integrated/onboard sound card','A PCIe sound card'], answer:2},
+  {id:61, type:'mcq', text:'The Southbridge chipset handles which of the following?',
+    options:['CPU-to-RAM data flow','GPU and high-speed memory connections','USB, audio, and hard drive I/O operations','Main power distribution'], answer:2},
+];
+
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+let student = { name:'', cls:'' };
+let shuffledQuestions = [];
+let optionMaps = {};       // {qIdx: [0,1,2,3] shuffled}
+let answers = {};
+let currentQ = 0;
+let timerInterval = null;
+let autosaveInterval = null;
+let secondsLeft = CONFIG.QUIZ_DURATION_SECONDS;
+let stream = null;
+let tabWarnings = 0;
+let faceWarningActive = false;
+let quizSubmitted = false;
+let screenshotWarnings = 0;
+
+// Per-question time tracking
+let qStartTime = Date.now();
+let qTimeTotals = {}; // {qIdx: totalSeconds}
+let qTimeInterval = null;
+
+// ════════════════════════════════════════════════════════
+//  STORAGE KEYS
+// ════════════════════════════════════════════════════════
+function attemptKey(name, cls) {
+  const key = (name.trim().toLowerCase() + '_' + cls.trim().toLowerCase())
+    .replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+  return CONFIG.STORAGE_PREFIX + 'done_' + key;
+}
+
+function progressKey(name, cls) {
+  const key = (name.trim().toLowerCase() + '_' + cls.trim().toLowerCase())
+    .replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+  return CONFIG.STORAGE_PREFIX + 'prog_' + key;
+}
+
+function hasAttempted(name, cls) {
+  try { const d = localStorage.getItem(attemptKey(name, cls)); return d ? JSON.parse(d) : null; } catch(e) { return null; }
+}
+
+function hasProgress(name, cls) {
+  try { const d = localStorage.getItem(progressKey(name, cls)); return d ? JSON.parse(d) : null; } catch(e) { return null; }
+}
+
+function recordAttempt(name, cls, score, total, pct) {
+  try {
+    localStorage.setItem(attemptKey(name, cls), JSON.stringify({ score, total, pct, date: new Date().toLocaleString() }));
+    localStorage.removeItem(progressKey(name, cls));
+  } catch(e) {}
+}
+
+function saveProgress() {
+  if (quizSubmitted) return;
+  try {
+    const indicator = document.getElementById('autosave-indicator');
+    const text = document.getElementById('autosave-text');
+    indicator.className = 'autosave-indicator saving';
+    text.textContent = 'Saving…';
+
+    const data = {
+      student, answers, currentQ, secondsLeft,
+      optionMaps, qTimeTotals,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(progressKey(student.name, student.cls), JSON.stringify(data));
+
+    setTimeout(() => {
+      indicator.className = 'autosave-indicator saved';
+      text.textContent = 'Saved ✓';
+      setTimeout(() => {
+        indicator.className = 'autosave-indicator';
+        text.textContent = 'Auto-save on';
+      }, 2000);
+    }, 300);
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════════════════
+//  SEEDED SHUFFLE
+// ════════════════════════════════════════════════════════
+function seedFromString(str) {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
+    hash = hash >>> 0;
+  }
+  return hash;
+}
+
+function seededRandom(seed) {
+  let s = seed >>> 0;
+  return function() {
+    s += 0x6D2B79F5;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function seededShuffle(arr, seed) {
+  const a = [...arr];
+  const rand = seededRandom(seed);
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+// ════════════════════════════════════════════════════════
+//  SCREENSHOT / SCREEN RECORDING DETECTION
+// ════════════════════════════════════════════════════════
+function setupScreenshotDetection() {
+  // PrintScreen key detection
+  document.addEventListener('keyup', e => {
+    if (!document.getElementById('screen-quiz').classList.contains('active')) return;
+    if (e.key === 'PrintScreen' || e.keyCode === 44) {
+      screenshotWarnings++;
+      SFX.warning();
+      document.getElementById('screenshot-overlay').classList.add('active');
+      // Clear clipboard
+      try { navigator.clipboard.writeText('').catch(()=>{}); } catch(e) {}
+    }
+  });
+
+  // Screen Capture API detection
+  if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+    const origGetDisplayMedia = navigator.mediaDevices.getDisplayMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getDisplayMedia = async function(opts) {
+      screenshotWarnings++;
+      SFX.warning();
+      document.getElementById('screenshot-overlay').classList.add('active');
+      return origGetDisplayMedia(opts);
+    };
+  }
+
+  // Window blur = possible screenshot tool / screen share
+  let blurCount = 0;
+  window.addEventListener('blur', () => {
+    if (!document.getElementById('screen-quiz').classList.contains('active')) return;
+    blurCount++;
+  });
+
+  // Visibility API for tab switching
+  document.addEventListener('visibilitychange', () => {
+    if (!document.getElementById('screen-quiz').classList.contains('active')) return;
+    if (document.hidden && !quizSubmitted) {
+      tabWarnings++;
+      SFX.warning();
+      document.getElementById('tab-warn-count').textContent = `Warning ${tabWarnings} of 3`;
+      document.getElementById('tab-warning-overlay').classList.add('active');
+      if (tabWarnings >= 3) {
+        document.querySelector('#tab-warning-overlay .tw-box p').innerHTML =
+          '<strong style="color:var(--danger)">Maximum violations reached. Quiz will be submitted.</strong>';
+        setTimeout(() => submitQuiz(true), 2500);
+      }
+    }
+  });
+}
+
+document.getElementById('btn-ss-dismiss').addEventListener('click', () => {
+  document.getElementById('screenshot-overlay').classList.remove('active');
+});
+
+document.getElementById('btn-tab-resume').addEventListener('click', () => {
+  document.getElementById('tab-warning-overlay').classList.remove('active');
+});
+
+// ════════════════════════════════════════════════════════
+//  ANTI-CHEAT
+// ════════════════════════════════════════════════════════
+document.addEventListener('copy', e => {
+  if (document.getElementById('screen-quiz').classList.contains('active')) e.preventDefault();
+});
+document.addEventListener('cut', e => {
+  if (document.getElementById('screen-quiz').classList.contains('active')) e.preventDefault();
+});
+document.addEventListener('contextmenu', e => {
+  if (document.getElementById('screen-quiz').classList.contains('active')) e.preventDefault();
+});
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('screen-quiz').classList.contains('active')) return;
+  if ((e.ctrlKey || e.metaKey) && ['c','v','u','a','s','p'].includes(e.key.toLowerCase())) e.preventDefault();
+  if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key))) e.preventDefault();
+  if (e.key === 'PrintScreen') {
+    e.preventDefault();
+    screenshotWarnings++;
+    SFX.warning();
+    document.getElementById('screenshot-overlay').classList.add('active');
+    try { navigator.clipboard.writeText('').catch(()=>{}); } catch(err) {}
+  }
+});
+
+// ════════════════════════════════════════════════════════
+//  REGISTRATION
+// ════════════════════════════════════════════════════════
+const agreeCheck = document.getElementById('agree-check');
+const btnStartCamera = document.getElementById('btn-start-camera');
+
+agreeCheck.addEventListener('change', () => {
+  btnStartCamera.disabled = !agreeCheck.checked;
+});
+
+// Show resume notice on name/class input
+function checkForResume() {
+  const name = document.getElementById('input-name').value.trim();
+  const cls = document.getElementById('input-class').value;
+  if (name && cls) {
+    const prog = hasProgress(name, cls);
+    document.getElementById('resume-notice').style.display = prog ? 'flex' : 'none';
+  } else {
+    document.getElementById('resume-notice').style.display = 'none';
+  }
+}
+document.getElementById('input-name').addEventListener('input', checkForResume);
+document.getElementById('input-class').addEventListener('change', checkForResume);
+
+btnStartCamera.addEventListener('click', () => {
+  const name = document.getElementById('input-name').value.trim();
+  const cls  = document.getElementById('input-class').value;
+
+  if (!name || !cls) {
+    alert('Please fill in all fields before continuing.');
+    return;
+  }
+
+  const prev = hasAttempted(name, cls);
+  if (prev) {
+    document.getElementById('prev-score-display').textContent = `${prev.score} / ${prev.total} (${prev.pct}%)`;
+    document.getElementById('prev-date-display').textContent = `Submitted on: ${prev.date}`;
+    show('screen-attempted');
+    return;
+  }
+
+  student = { name, cls };
+  show('screen-camera');
+  initCamera();
+});
+
+// ════════════════════════════════════════════════════════
+//  CAMERA
+// ════════════════════════════════════════════════════════
+async function initCamera() {
+  const dot  = document.getElementById('cam-status-dot');
+  const text = document.getElementById('cam-status-text');
+  const btn  = document.getElementById('btn-begin-quiz');
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width:{ ideal:640 }, height:{ ideal:480 } }, audio: false });
+    document.getElementById('video-preview').srcObject = stream;
+    document.getElementById('video-monitor').srcObject = stream;
+    dot.classList.add('active');
+    text.textContent = 'Camera active — face clearly visible ✓';
+    btn.disabled = false;
+  } catch(err) {
+    dot.classList.add('error');
+    text.textContent = 'Camera access denied. Please allow camera and refresh.';
+    btn.disabled = true;
+  }
+}
+
+document.getElementById('btn-begin-quiz').addEventListener('click', startQuiz);
+
+// ════════════════════════════════════════════════════════
+//  START QUIZ
+// ════════════════════════════════════════════════════════
+function startQuiz() {
+  const seedStr = (student.name + '|' + student.cls).toLowerCase();
+  const seed = seedFromString(seedStr);
+
+  // Check for saved progress (resume)
+  const savedProgress = hasProgress(student.name, student.cls);
+
+  shuffledQuestions = seededShuffle(QUESTIONS_BANK, seed);
+
+  if (savedProgress && savedProgress.optionMaps) {
+    // RESUME from saved state
+    answers = savedProgress.answers || {};
+    currentQ = savedProgress.currentQ || 0;
+    secondsLeft = savedProgress.secondsLeft || CONFIG.QUIZ_DURATION_SECONDS;
+    optionMaps = savedProgress.optionMaps;
+    qTimeTotals = savedProgress.qTimeTotals || {};
+  } else {
+    // Fresh start — generate option shuffles
+    answers = {};
+    currentQ = 0;
+    secondsLeft = CONFIG.QUIZ_DURATION_SECONDS;
+    optionMaps = {};
+    qTimeTotals = {};
+
+    // Shuffle MCQ options per-student (deterministic)
+    shuffledQuestions.forEach((q, qi) => {
+      if (q.type === 'mcq') {
+        // Generate a sub-seed for this question's options
+        const optSeed = seedFromString(seedStr + '_opt_' + qi);
+        const origOrder = [0, 1, 2, 3];
+        const shuffledOrder = seededShuffle(origOrder, optSeed);
+        optionMaps[qi] = shuffledOrder; // shuffledOrder[displayPosition] = originalIndex
+      }
+    });
+  }
+
+  document.getElementById('topbar-student').textContent = `${student.name} · ${student.cls}`;
+  show('screen-quiz');
+  buildQNav();
+  renderQuestion(currentQ);
+  startTimer();
+  startFaceMonitoring();
+  startQTimeTracking();
+  setupScreenshotDetection();
+
+  // Auto-save every 30s
+  autosaveInterval = setInterval(saveProgress, CONFIG.AUTOSAVE_INTERVAL);
+}
+
+// ════════════════════════════════════════════════════════
+//  PER-QUESTION TIME TRACKING
+// ════════════════════════════════════════════════════════
+function startQTimeTracking() {
+  qStartTime = Date.now();
+  qTimeInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - qStartTime) / 1000);
+    const display = document.getElementById('q-time-display');
+    if (display) display.textContent = `⏱ ${elapsed}s`;
+  }, 1000);
+}
+
+function recordQTime(qIdx) {
+  const elapsed = Math.floor((Date.now() - qStartTime) / 1000);
+  qTimeTotals[qIdx] = (qTimeTotals[qIdx] || 0) + elapsed;
+  qStartTime = Date.now();
+}
+
+// ════════════════════════════════════════════════════════
+//  QUESTION NAV
+// ════════════════════════════════════════════════════════
+function buildQNav() {
+  const nav = document.getElementById('q-nav');
+  nav.innerHTML = '';
+  shuffledQuestions.forEach((_, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-nav-btn' + (i === 0 ? ' current' : '');
+    btn.textContent = i + 1;
+    btn.addEventListener('click', () => {
+      recordQTime(currentQ);
+      currentQ = i;
+      renderQuestion(i);
+    });
+    nav.appendChild(btn);
+  });
+}
+
+function updateQNav() {
+  const btns = document.querySelectorAll('.q-nav-btn');
+  // Mark slow questions (>90s on that question)
+  btns.forEach((btn, i) => {
+    btn.className = 'q-nav-btn';
+    if (answers[i] !== undefined && answers[i] !== '') btn.classList.add('answered');
+    if (i === currentQ) btn.classList.add('current');
+    if ((qTimeTotals[i] || 0) > 90) btn.classList.add('slow-q');
+  });
+  const answered = Object.values(answers).filter(a => a !== undefined && a !== '').length;
+  document.getElementById('progress-bar').style.width = `${(answered / shuffledQuestions.length) * 100}%`;
+  document.getElementById('q-counter').textContent = `Q ${currentQ + 1} / ${shuffledQuestions.length}`;
+}
+
+// ════════════════════════════════════════════════════════
+//  RENDER QUESTION (with shuffled options)
+// ════════════════════════════════════════════════════════
+function renderQuestion(idx) {
+  const q = shuffledQuestions[idx];
+  const label = document.getElementById('q-label');
+  const qText = document.getElementById('q-text');
+  const area  = document.getElementById('q-answer-area');
+  const warnEl = document.getElementById('unanswered-warn');
+
+  warnEl.style.display = 'none';
+  label.innerHTML = `Question ${idx + 1} <span class="q-type-badge">${q.type === 'fill' ? 'Fill in Blank' : 'Multiple Choice'}</span>`;
+  qText.textContent = q.text;
+  area.innerHTML = '';
+
+  if (q.type === 'mcq') {
+    const ol = document.createElement('div');
+    ol.className = 'options-list';
+    const letters = ['A','B','C','D'];
+
+    // Get shuffled option display order for this question
+    const displayOrder = optionMaps[idx] || [0,1,2,3];
+
+    displayOrder.forEach((origIdx, displayPos) => {
+      const opt = q.options[origIdx];
+      // stored answer is origIdx
+      const isSelected = answers[idx] === origIdx;
+      const btn = document.createElement('button');
+      btn.className = 'option-btn' + (isSelected ? ' selected' : '');
+      btn.innerHTML = `<span class="opt-letter">${letters[displayPos]}</span><span>${opt}</span>`;
+      btn.addEventListener('click', () => {
+        answers[idx] = origIdx; // store original index
+        SFX.select();
+        renderQuestion(idx);
+        updateQNav();
+      });
+      ol.appendChild(btn);
+    });
+    area.appendChild(ol);
+  } else {
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'fill-input';
+    inp.placeholder = 'Type your answer here…';
+    inp.value = answers[idx] || '';
+    inp.style.webkitUserSelect = 'text';
+    inp.style.userSelect = 'text';
+    inp.addEventListener('input', () => { answers[idx] = inp.value; updateQNav(); });
+    inp.addEventListener('paste', e => e.stopPropagation());
+    area.appendChild(inp);
+    if (window.innerWidth > 640) inp.focus();
+  }
+
+  updateQNav();
+  document.getElementById('q-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ════════════════════════════════════════════════════════
+//  NAV BUTTONS
+// ════════════════════════════════════════════════════════
+document.getElementById('btn-prev').addEventListener('click', () => {
+  if (currentQ > 0) { recordQTime(currentQ); currentQ--; renderQuestion(currentQ); }
+});
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (currentQ < shuffledQuestions.length - 1) { recordQTime(currentQ); currentQ++; renderQuestion(currentQ); }
+});
+
+// ════════════════════════════════════════════════════════
+//  SUBMIT WITH UNANSWERED CHECK
+// ════════════════════════════════════════════════════════
+document.getElementById('btn-submit-quiz').addEventListener('click', () => {
+  const unanswered = shuffledQuestions
+    .map((_, i) => i)
+    .filter(i => answers[i] === undefined || answers[i] === '');
+
+  const modal = document.getElementById('modal-submit');
+  const listEl = document.getElementById('modal-unanswered-list');
+
+  if (unanswered.length > 0) {
+    listEl.style.display = 'block';
+    listEl.innerHTML = `<p style="color:var(--warn);font-size:0.82rem;margin-bottom:0.5rem;">⚠ You have <strong>${unanswered.length}</strong> unanswered question(s):</p><ul style="list-style:none;max-height:120px;overflow-y:auto;">` +
+      unanswered.map(i => `<li style="padding:0.2rem 0;color:var(--text-dim);font-size:0.8rem;">• Q${i+1}: ${shuffledQuestions[i].text.slice(0,60)}…</li>`).join('') + '</ul>';
+  } else {
+    listEl.style.display = 'none';
+  }
+  modal.classList.add('active');
+});
+
+document.getElementById('modal-cancel').addEventListener('click', () => {
+  document.getElementById('modal-submit').classList.remove('active');
+});
+document.getElementById('modal-confirm').addEventListener('click', () => {
+  document.getElementById('modal-submit').classList.remove('active');
+  submitQuiz(false);
+});
+document.getElementById('modal-timeout-ok').addEventListener('click', () => {
+  document.getElementById('modal-timeout').classList.remove('active');
+  if (!quizSubmitted) submitQuiz(true);
+});
+
+// ════════════════════════════════════════════════════════
+//  TIMER
+// ════════════════════════════════════════════════════════
+let timerWarnPlayed = false;
+let timerDangerPlayed = false;
+
+function startTimer() {
+  const display = document.getElementById('timer-display');
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    display.textContent = formatTime(secondsLeft);
+    if (secondsLeft <= 300 && secondsLeft > 60) {
+      display.className = 'timer-box warn';
+      if (!timerWarnPlayed) { SFX.timerWarn(); timerWarnPlayed = true; }
+    } else if (secondsLeft <= 60) {
+      display.className = 'timer-box danger';
+      if (!timerDangerPlayed) { SFX.timerWarn(); timerDangerPlayed = true; }
+      if (secondsLeft % 10 === 0 && secondsLeft > 0) SFX.timerDanger();
+    }
+    if (secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById('modal-timeout').classList.add('active');
+      setTimeout(() => { if (!quizSubmitted) submitQuiz(true); }, 5000);
+    }
+  }, 1000);
+}
+
+// ════════════════════════════════════════════════════════
+//  FACE MONITORING — IMPROVED
+// ════════════════════════════════════════════════════════
+let faceCanvas, faceCtx;
+let noFaceFrames = 0;
+const NO_FACE_THRESHOLD = 2; // consecutive checks before warning
+
+function startFaceMonitoring() {
+  faceCanvas = document.createElement('canvas');
+  faceCanvas.width = 160; faceCanvas.height = 120;
+  faceCtx = faceCanvas.getContext('2d', { willReadFrequently: true });
+
+  setInterval(() => {
+    if (!stream || quizSubmitted) return;
+    const vid = document.getElementById('video-monitor');
+    if (!vid || vid.readyState < 2) return;
+
+    try {
+      faceCtx.drawImage(vid, 0, 0, 160, 120);
+      const pixels = faceCtx.getImageData(0, 0, 160, 120).data;
+
+      // More robust detection: check brightness AND skin-tone pixels
+      const brightness = calcBrightness(pixels);
+      const skinPixels = countSkinPixels(pixels);
+      const totalPixels = (pixels.length / 4);
+      const skinRatio = skinPixels / totalPixels;
+
+      // A face is present if there's adequate brightness AND some skin-tone area
+      const facePresent = brightness > 15 && skinRatio > 0.03;
+
+      if (!facePresent) {
+        noFaceFrames++;
+      } else {
+        noFaceFrames = 0;
+      }
+
+      if (noFaceFrames >= NO_FACE_THRESHOLD) {
+        if (!faceWarningActive) {
+          faceWarningActive = true;
+          SFX.warning();
+          document.getElementById('warning-overlay').classList.add('active');
+        }
+      } else {
+        if (faceWarningActive) {
+          faceWarningActive = false;
+          document.getElementById('warning-overlay').classList.remove('active');
+        }
+      }
+    } catch(e) {}
+  }, CONFIG.FACE_CHECK_INTERVAL);
+}
+
+function calcBrightness(data) {
+  let total = 0;
+  const step = 4 * 4; // sample every 4th pixel
+  let count = 0;
+  for (let i = 0; i < data.length; i += step) {
+    total += (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114);
+    count++;
+  }
+  return total / count;
+}
+
+function countSkinPixels(data) {
+  let count = 0;
+  const step = 4 * 4;
+  for (let i = 0; i < data.length; i += step) {
+    const r = data[i], g = data[i+1], b = data[i+2];
+    // Skin tone detection: YCbCr-inspired heuristic
+    if (r > 60 && g > 40 && b > 20 &&
+        r > g && r > b &&
+        Math.abs(r - g) > 10 &&
+        r - b > 20 &&
+        r < 250) {
+      count++;
+    }
+  }
+  return count;
+}
+
+// ════════════════════════════════════════════════════════
+//  GRADING
+// ════════════════════════════════════════════════════════
+function gradeQuiz() {
+  let correct = 0;
+  const details = [];
+
+  shuffledQuestions.forEach((q, i) => {
+    const userAnswer = answers[i];
+    let isCorrect = false;
+    let displayUser = '(not answered)';
+    let displayCorrect = '';
+
+    if (q.type === 'mcq') {
+      const letters = ['A','B','C','D'];
+      isCorrect = userAnswer === q.answer;
+      displayUser = userAnswer !== undefined ? `${q.options[userAnswer]}` : '(not answered)';
+      displayCorrect = q.options[q.answer];
+    } else {
+      const ua = String(userAnswer || '').trim().toLowerCase();
+      const accepted = q.answer.toLowerCase().split('/').map(s => s.trim());
+      isCorrect = accepted.some(a => ua.includes(a) || a.includes(ua)) && ua.length > 0;
+      displayUser = userAnswer || '(not answered)';
+      displayCorrect = q.answer;
+    }
+
+    if (isCorrect) correct++;
+    details.push({ q, userAnswer, isCorrect, displayUser, displayCorrect, idx: i });
+  });
+
+  return { correct, total: shuffledQuestions.length, details };
+}
+
+// ════════════════════════════════════════════════════════
+//  SUBMIT
+// ════════════════════════════════════════════════════════
+async function submitQuiz(forced) {
+  if (quizSubmitted) return;
+  quizSubmitted = true;
+  clearInterval(timerInterval);
+  clearInterval(autosaveInterval);
+  clearInterval(qTimeInterval);
+  recordQTime(currentQ);
+  if (stream) stream.getTracks().forEach(t => t.stop());
+
+  const { correct, total, details } = gradeQuiz();
+  const pct = Math.round((correct / total) * 100);
+  const timeTaken = CONFIG.QUIZ_DURATION_SECONDS - secondsLeft;
+
+  recordAttempt(student.name, student.cls, correct, total, pct);
+
+  show('screen-results');
+  SFX.submit();
+
+  // Animated score reveal
+  setTimeout(() => animateScore(pct, correct, total), 300);
+
+  const mins = Math.floor(timeTaken / 60);
+  const secs = timeTaken % 60;
+  document.getElementById('score-stats').innerHTML = `
+    <div class="stat-box"><div class="stat-val" style="color:var(--correct)">${correct}</div><div class="stat-label">Correct</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--danger)">${total - correct}</div><div class="stat-label">Incorrect</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--accent)">${mins}m ${secs}s</div><div class="stat-label">Time Taken</div></div>
+  `;
+
+  // Slowest questions
+  const sortedByTime = Object.entries(qTimeTotals)
+    .map(([idx, sec]) => ({ idx: parseInt(idx), sec }))
+    .sort((a, b) => b.sec - a.sec)
+    .slice(0, 5)
+    .filter(x => x.sec > 5);
+
+  if (sortedByTime.length > 0) {
+    document.getElementById('slow-questions-section').style.display = 'block';
+    document.getElementById('slow-q-list').innerHTML = sortedByTime.map(x =>
+      `<div class="slow-q-item">
+        <span>Q${x.idx + 1}: ${shuffledQuestions[x.idx].text.slice(0, 55)}…</span>
+        <span class="slow-q-time">${Math.floor(x.sec/60)}m ${x.sec%60}s</span>
+      </div>`
+    ).join('');
+  }
+
+  // Results breakdown
+  const list = document.getElementById('results-list');
+  list.innerHTML = '';
+  details.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = 'result-item';
+    el.innerHTML = `
+      <div class="ri-q"><strong>Q${i+1}:</strong> ${d.q.text.length > 100 ? d.q.text.slice(0,100)+'…' : d.q.text}</div>
+      <div class="ri-your ${d.isCorrect ? 'ri-correct' : 'ri-wrong'}">
+        ${d.isCorrect ? '✓' : '✗'} Your answer: <em>${d.displayUser}</em>
+      </div>
+      ${!d.isCorrect ? `<div class="ri-ans">✓ Correct: <em>${d.displayCorrect}</em></div>` : ''}
+    `;
+    list.appendChild(el);
+  });
+
+  // Confetti for pass
+  if (pct >= CONFIG.PASS_PERCENT) {
+    setTimeout(() => { SFX.chime(); launchConfetti(); }, 600);
+  }
+
+  await submitToSheets({ correct, total, pct, timeTaken, forced });
+}
+
+// ════════════════════════════════════════════════════════
+//  ANIMATED SCORE
+// ════════════════════════════════════════════════════════
+function animateScore(pct, correct, total) {
+  const circle = document.getElementById('score-circle');
+  const pctEl = document.getElementById('score-pct');
+  const arc = document.getElementById('score-arc');
+
+  circle.className = 'score-circle ' + (pct >= CONFIG.PASS_PERCENT ? 'score-pass' : 'score-fail');
+
+  // Animate number counter
+  let current = 0;
+  const duration = 1200;
+  const start = Date.now();
+  const tick = () => {
+    const elapsed = Date.now() - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    current = Math.round(pct * eased);
+    pctEl.textContent = `${current}%`;
+
+    // Animate SVG arc
+    const circumference = 427;
+    const offset = circumference - (circumference * eased * pct / 100);
+    arc.style.strokeDashoffset = offset;
+
+    if (progress < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// ════════════════════════════════════════════════════════
+//  CONFETTI
+// ════════════════════════════════════════════════════════
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = Array.from({ length: 150 }, () => ({
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 100,
+    r: 4 + Math.random() * 6,
+    dx: (Math.random() - 0.5) * 3,
+    dy: 2 + Math.random() * 4,
+    color: ['#00d4ff','#7c3aed','#10b981','#f59e0b','#ef4444','#ffffff'][Math.floor(Math.random()*6)],
+    rotation: Math.random() * 360,
+    drot: (Math.random() - 0.5) * 8,
+    shape: Math.random() > 0.5 ? 'rect' : 'circle',
+  }));
+
+  let frame = 0;
+  const animate = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.dx; p.y += p.dy; p.rotation += p.drot;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') ctx.fillRect(-p.r, -p.r/2, p.r*2, p.r);
+      else { ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fill(); }
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 200) requestAnimationFrame(animate);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); canvas.style.display='none'; }
+  };
+  requestAnimationFrame(animate);
+}
+
+// ════════════════════════════════════════════════════════
+//  SUBMIT TO SHEETS
+// ════════════════════════════════════════════════════════
+async function submitToSheets({ correct, total, pct, timeTaken, forced }) {
+  const payload = {
+    timestamp: new Date().toISOString(),
+    name: student.name,
+    class: student.cls,
+    score: correct,
+    total,
+    percent: pct,
+    timeTaken,
+    tabViolations: tabWarnings,
+    screenshotAttempts: screenshotWarnings,
+    forced,
+    answers: shuffledQuestions.map((q, i) => ({
+      qid: q.id,
+      question: q.text.slice(0,80),
+      answer: answers[i] !== undefined ? String(answers[i]) : '',
+      timeSpent: qTimeTotals[i] || 0,
+    }))
+  };
+
+  try {
+    await fetch(CONFIG.GOOGLE_SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    document.getElementById('submit-badge').style.display = 'flex';
+    document.getElementById('submit-msg').textContent = `Responses submitted • Score: ${correct}/${total} (${pct}%)`;
+  } catch(e) {
+    document.getElementById('submit-error').style.display = 'flex';
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  SCHEDULE ENGINE
+// ════════════════════════════════════════════════════════
+const SCHED_KEY = 'bisease_schedule_v1';
+const ADMIN_PWD_KEY = 'bisease_admin_pwd_v1';
+const DEFAULT_ADMIN_PWD = 'sirEmma2025';
+
+function loadSchedule() {
+  try {
+    const d = localStorage.getItem(SCHED_KEY);
+    return d ? JSON.parse(d) : {
+      openDt: null,
+      closeDt: null,
+      tzLabel: 'WAT',
+      override: 'auto',
+      durationMins: 60,
+      passPct: 50,
+    };
+  } catch(e) { return {}; }
+}
+
+function saveSchedule(cfg) {
+  try { localStorage.setItem(SCHED_KEY, JSON.stringify(cfg)); } catch(e) {}
+}
+
+function getAdminPwd() {
+  try { return localStorage.getItem(ADMIN_PWD_KEY) || DEFAULT_ADMIN_PWD; } catch(e) { return DEFAULT_ADMIN_PWD; }
+}
+
+function setAdminPwd(p) {
+  try { localStorage.setItem(ADMIN_PWD_KEY, p); } catch(e) {}
+}
+
+function getQuizState(cfg) {
+  if (cfg.override === 'open') return 'open';
+  if (cfg.override === 'locked') return 'locked';
+  const now = Date.now();
+  const open = cfg.openDt ? new Date(cfg.openDt).getTime() : null;
+  const close = cfg.closeDt ? new Date(cfg.closeDt).getTime() : null;
+  if (!open && !close) return 'open'; // no schedule set = always open
+  if (open && now < open) return 'before';
+  if (close && now > close) return 'ended';
+  return 'open';
+}
+
+function formatDt(dtStr, tzLabel) {
+  if (!dtStr) return '—';
+  const d = new Date(dtStr);
+  return d.toLocaleDateString('en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric' })
+    + ' · ' + d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' })
+    + (tzLabel ? ' ' + tzLabel : '');
+}
+
+// ── Countdown ticker ──
+let countdownInterval = null;
+
+function startCountdown(targetDt, labelText) {
+  clearInterval(countdownInterval);
+  document.getElementById('cd-label').textContent = labelText;
+  document.getElementById('locked-countdown-box').style.display = 'block';
+
+  const tick = () => {
+    const diff = new Date(targetDt).getTime() - Date.now();
+    if (diff <= 0) {
+      clearInterval(countdownInterval);
+      checkScheduleAndRoute(); // re-check — might be open now
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cd-days').textContent  = String(d).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
+    document.getElementById('cd-mins').textContent  = String(m).padStart(2,'0');
+    document.getElementById('cd-secs').textContent  = String(s).padStart(2,'0');
+  };
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
+function checkScheduleAndRoute() {
+  const cfg = loadSchedule();
+  const state = getQuizState(cfg);
+
+  // Apply dynamic config
+  CONFIG.QUIZ_DURATION_SECONDS = (cfg.durationMins || 60) * 60;
+  CONFIG.PASS_PERCENT = cfg.passPct || 50;
+
+  if (state === 'open') {
+    // Quiz is open — show registration (if not already on a quiz/results screen)
+    const active = document.querySelector('.screen.active');
+    if (!active || active.id === 'screen-locked') {
+      show('screen-register');
+    }
+    return;
+  }
+
+  // Not open — show locked screen
+  show('screen-locked');
+  clearInterval(countdownInterval);
+
+  const tzLabel = cfg.tzLabel || '';
+  const openVal = formatDt(cfg.openDt, tzLabel);
+  const closeVal = formatDt(cfg.closeDt, tzLabel);
+  const hasSchedule = cfg.openDt || cfg.closeDt;
+
+  if (hasSchedule) {
+    document.getElementById('locked-schedule-grid').style.display = 'grid';
+    document.getElementById('locked-open-val').textContent = openVal;
+    document.getElementById('locked-close-val').textContent = closeVal;
+  } else {
+    document.getElementById('locked-schedule-grid').style.display = 'none';
+  }
+
+  const badgeEl = document.getElementById('locked-badge');
+
+  if (state === 'before') {
+    document.getElementById('locked-icon').textContent = '🕐';
+    document.getElementById('locked-title').textContent = 'Quiz Not Open Yet';
+    document.getElementById('locked-sub').textContent = 'The quiz window has not started. Check back at the scheduled time.';
+    badgeEl.innerHTML = '<span class="open-badge">⏳ Coming soon</span>';
+    if (cfg.openDt) startCountdown(cfg.openDt, 'Quiz opens in');
+    else document.getElementById('locked-countdown-box').style.display = 'none';
+  } else if (state === 'ended') {
+    document.getElementById('locked-icon').textContent = '🔒';
+    document.getElementById('locked-title').textContent = 'Quiz Window Closed';
+    document.getElementById('locked-sub').textContent = 'The submission deadline has passed. No further attempts are accepted.';
+    badgeEl.innerHTML = '<span class="ended-badge">❌ Quiz ended</span>';
+    document.getElementById('locked-countdown-box').style.display = 'none';
+  } else if (state === 'locked') {
+    document.getElementById('locked-icon').textContent = '🚫';
+    document.getElementById('locked-title').textContent = 'Quiz Temporarily Locked';
+    document.getElementById('locked-sub').textContent = 'The teacher has temporarily locked the quiz. Please wait for further instructions.';
+    badgeEl.innerHTML = '<span class="ended-badge">🔒 Access restricted</span>';
+    document.getElementById('locked-countdown-box').style.display = 'none';
+  }
+}
+
+// ── Admin panel logic ──
+let adminUnlocked = false;
+
+document.getElementById('admin-fab').addEventListener('click', () => {
+  document.getElementById('admin-modal').classList.add('active');
+  if (adminUnlocked) loadAdminFields();
+});
+
+function closeAdminModal() {
+  document.getElementById('admin-modal').classList.remove('active');
+}
+document.getElementById('admin-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('admin-modal')) closeAdminModal();
+});
+document.getElementById('btn-admin-close-inner')?.addEventListener('click', closeAdminModal);
+
+document.getElementById('btn-admin-login').addEventListener('click', () => {
+  const pwd = document.getElementById('admin-pwd-input').value;
+  if (pwd === getAdminPwd()) {
+    adminUnlocked = true;
+    document.getElementById('admin-login-section').style.display = 'none';
+    document.getElementById('admin-settings-section').style.display = 'block';
+    loadAdminFields();
+  } else {
+    document.getElementById('admin-pwd-error').style.display = 'block';
+    document.getElementById('admin-pwd-input').style.borderColor = 'var(--danger)';
+  }
+});
+
+document.getElementById('admin-pwd-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-admin-login').click();
+});
+
+function loadAdminFields() {
+  const cfg = loadSchedule();
+  if (cfg.openDt)  document.getElementById('admin-open-dt').value  = cfg.openDt;
+  if (cfg.closeDt) document.getElementById('admin-close-dt').value = cfg.closeDt;
+  document.getElementById('admin-tz-label').value   = cfg.tzLabel  || 'WAT';
+  document.getElementById('admin-duration').value   = cfg.durationMins || 60;
+  document.getElementById('admin-pass').value       = cfg.passPct  || 50;
+  document.getElementById('admin-override').value   = cfg.override || 'auto';
+  updateAdminStatus(cfg);
+}
+
+function updateAdminStatus(cfg) {
+  const state = getQuizState(cfg);
+  const dot   = document.getElementById('admin-status-dot');
+  const text  = document.getElementById('admin-status-text');
+  dot.className = 'admin-status-dot';
+  if (state === 'open') {
+    dot.classList.add('green');
+    text.textContent = '✅ Quiz is currently OPEN — students can access it.';
+  } else if (state === 'before') {
+    dot.classList.add('yellow');
+    const openDt = new Date(cfg.openDt);
+    text.textContent = '⏳ Quiz opens on ' + openDt.toLocaleString('en-GB') + ' (' + (cfg.tzLabel||'') + ')';
+  } else if (state === 'ended') {
+    dot.classList.add('red');
+    text.textContent = '🔒 Quiz window has ENDED. No more submissions.';
+  } else if (state === 'locked') {
+    dot.classList.add('red');
+    text.textContent = '🚫 Quiz is FORCE LOCKED by admin override.';
+  }
+}
+
+document.getElementById('btn-admin-save').addEventListener('click', () => {
+  const openDt  = document.getElementById('admin-open-dt').value;
+  const closeDt = document.getElementById('admin-close-dt').value;
+  const tzLabel = document.getElementById('admin-tz-label').value.trim();
+  const duration = parseInt(document.getElementById('admin-duration').value) || 60;
+  const passPct  = parseInt(document.getElementById('admin-pass').value) || 50;
+  const override = document.getElementById('admin-override').value;
+
+  if (openDt && closeDt && new Date(closeDt) <= new Date(openDt)) {
+    alert('Close time must be after open time.');
+    return;
+  }
+
+  const newPwd     = document.getElementById('admin-new-pwd').value;
+  const confirmPwd = document.getElementById('admin-confirm-pwd').value;
+  if (newPwd) {
+    if (newPwd !== confirmPwd) { alert('Passwords do not match.'); return; }
+    if (newPwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
+    setAdminPwd(newPwd);
+  }
+
+  const cfg = { openDt, closeDt, tzLabel, durationMins: duration, passPct, override };
+  saveSchedule(cfg);
+
+  // Apply immediately
+  CONFIG.QUIZ_DURATION_SECONDS = duration * 60;
+  CONFIG.PASS_PERCENT = passPct;
+
+  const savedMsg = document.getElementById('admin-saved-msg');
+  savedMsg.style.display = 'block';
+  setTimeout(() => { savedMsg.style.display = 'none'; }, 2500);
+
+  updateAdminStatus(cfg);
+
+  // Re-route students if state changed
+  const activeScreen = document.querySelector('.screen.active');
+  const quizScreens = ['screen-quiz', 'screen-results', 'screen-camera', 'screen-attempted'];
+  if (!quizScreens.includes(activeScreen?.id)) {
+    checkScheduleAndRoute();
+  }
+});
+
+// ── Boot: check schedule on load ──
+checkScheduleAndRoute();
+
+</script>
+</body>
+</html>
