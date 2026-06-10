@@ -1626,13 +1626,13 @@ async function initCamera() {
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width:{ ideal:640 }, height:{ ideal:480 } }, audio: false });
     document.getElementById('video-preview').srcObject = stream;
     document.getElementById('video-monitor').srcObject = stream;
-    dot.classList.add('inactive');
+    dot.classList.add('active');
     text.textContent = 'Camera active — face clearly visible ✓';
-    btn.disabled = false;
+    btn.disabled = true;
   } catch(err) {
     dot.classList.add('error');
     text.textContent = 'Camera access denied. Please allow camera and refresh.';
-    btn.disabled = true;
+    btn.disabled = false;
   }
 }
 
