@@ -1626,7 +1626,7 @@ async function initCamera() {
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width:{ ideal:640 }, height:{ ideal:480 } }, audio: false });
     document.getElementById('video-preview').srcObject = stream;
     document.getElementById('video-monitor').srcObject = stream;
-    dot.classList.add('active');
+    dot.classList.add('inactive');
     text.textContent = 'Camera active — face clearly visible ✓';
     btn.disabled = false;
   } catch(err) {
