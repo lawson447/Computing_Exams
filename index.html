@@ -2250,7 +2250,7 @@ function checkScheduleAndRoute() {
   const state = getQuizState(cfg);
 
   // Apply dynamic config
-  CONFIG.QUIZ_DURATION_SECONDS = (cfg.durationMins || 60) * 60;
+  CONFIG.QUIZ_DURATION_SECONDS = (cfg.durationMins || 60) * 30;
   CONFIG.PASS_PERCENT = cfg.passPct || 50;
 
   if (state === 'open') {
